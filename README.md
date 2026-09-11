@@ -30,14 +30,20 @@
 
 当 DSH 部署在门户或反向代理之后时（例如某些 NAS 应用门户），网关通常只转发一组固定的路径前缀，而 `/_dsh/` 是其中常见的既有前缀之一。把路由挂在这个前缀下，可以让它在**直连端口**与**门户路径**两种访问方式下都可达，从而不必修改网关配置 —— 这也是选择它的唯一理由；若你的部署没有网关，任何前缀都一样。
 
-## 构建与安装
+## 构建
 
 ```bash
 node client/build.mjs              # 产出 client/dist/index.js
 node --check client/dist/index.js  # 语法自检
 ```
 
-## 从源码安装（通用步骤）
+## 安装
+
+### 方式一：用预打包 Release（推荐）
+
+从 [Releases](https://github.com/AdaJyao/dsh-api-balance/releases) 下载 `dsh-api-balance-0.1.0.tgz`（`sha256sum` 可与 Release 说明核对），然后直接跳到下面「方式二」的第 3 步生成 `spec.json`。省掉构建与打包两步。
+
+### 方式二：从源码自己打包
 
 本仓库不含预打包的 `.tgz`，也不含带绝对路径的本地 `spec.json`（两者都在 `.gitignore` 内）。
 
@@ -47,7 +53,7 @@ node client/build.mjs
 
 # 2. 打成 npm 风格 tarball —— 必须单顶层目录 package/
 rm -rf /tmp/pack && mkdir -p /tmp/pack/package
-cp -r package.json cordis.patch.yml README.md lib client /tmp/pack/package/
+cp -r package.json cordis.patch.yml README.md LICENSE lib client /tmp/pack/package/
 tar czf dsh-api-balance-0.1.0.tgz -C /tmp/pack package
 sha256sum dsh-api-balance-0.1.0.tgz
 
