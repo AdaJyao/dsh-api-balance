@@ -1,10 +1,17 @@
-# dsh-api-balance
+# dsh-api-balance（已并入 dsh-plugins 仓库）
 
-只读展示 DeepSeek API 账户余额的 DSH 插件：右下角悬浮挂件 +「设置 → API 余额」页面。
+> ⚠️ **这个仓库不再单独更新**。插件已并入综合仓库
+> [**AdaJyao/dsh-plugins**](https://github.com/AdaJyao/dsh-plugins) 的 [`packages/dsh-api-balance`](https://github.com/AdaJyao/dsh-plugins/tree/main/packages/dsh-api-balance)
+> （当前版本 **0.1.1**），预打包 tgz 在 [releases](https://github.com/AdaJyao/dsh-plugins/releases)。
+> 后续新插件也都加在那个仓库里。本仓库保留作为历史入口。
+
+只读展示 DeepSeek API 账户余额的 DSH 插件：悬浮挂件 +「设置 → API 余额」页面。
 
 ## 它做什么
 
-- **悬浮挂件**（`shell.overlay`）：`🐳 ¥52.14`，可拖到屏幕任意位置，单击展开明细（赠金 / 充值 / 账户状态 / 更新于）。鼠标悬停显示完整 tooltip。
+- **悬浮挂件**（`shell.overlay`）：`🐳 ¥52.14`。默认贴在**聊天区左侧、约窗口高度 1/3 处**（侧栏右缘 +16px；
+  侧栏宽度在挂载时实测，拖动过侧栏也不会错位）。可拖到屏幕任意位置，单击展开明细（赠金 / 充值 / 账户状态 /
+  更新于）。鼠标悬停显示完整 tooltip。
 - **设置页**（`settings.section`）：一级导航里的中文名条目「API 余额」，展示余额、币种、查询节奏、数据接口与凭据来源。
 - **只读**：没有任何充值、扣费或写操作，也不修改账户设置。
 
@@ -37,11 +44,25 @@ node client/build.mjs              # 产出 client/dist/index.js
 node --check client/dist/index.js  # 语法自检
 ```
 
+## 自检：挂件默认位置
+
+默认位置 = `实测侧栏宽度 + 16px`（横向贴住聊天区左缘）× `窗口高度 × 33%`（纵向约三分之一处）。
+侧栏宽度在挂载时实测，所以用户拖动过侧栏也不会错位；量不到时回退 280px。
+
+```bash
+# 参数：<bundle> <期望 left> <期望 top> [侧栏宽度=280] [窗口高度=1000]
+node test/widget-position.mjs client/dist/index.js 296 330
+node test/widget-position.mjs client/dist/index.js 256 264 240 800
+```
+
+该测试用可重渲染的迷你 React + 假 DOM 把**真实组件**跑起来，断言最终落到根节点上的
+`style.left` / `style.top`（并断言不再使用 `right`/`bottom` 锚定、测量完成后不再是隐藏态）。
+
 ## 安装
 
 ### 方式一：用预打包 Release（推荐）
 
-从 [Releases](https://github.com/AdaJyao/dsh-api-balance/releases) 下载 `dsh-api-balance-0.1.0.tgz`（`sha256sum` 可与 Release 说明核对），然后直接跳到下面「方式二」的第 3 步生成 `spec.json`。省掉构建与打包两步。
+从 [Releases](https://github.com/AdaJyao/dsh-api-balance/releases) 下载与当前版本一致的 `dsh-api-balance-0.1.1.tgz`（`sha256sum` 可与 Release 说明核对），然后直接跳到下面「方式二」的第 3 步生成 `spec.json`。省掉构建与打包两步；若 Release 还没更新到该版本，请走方式二自行打包。
 
 ### 方式二：从源码自己打包
 
@@ -54,8 +75,8 @@ node client/build.mjs
 # 2. 打成 npm 风格 tarball —— 必须单顶层目录 package/
 rm -rf /tmp/pack && mkdir -p /tmp/pack/package
 cp -r package.json cordis.patch.yml README.md LICENSE lib client /tmp/pack/package/
-tar czf dsh-api-balance-0.1.0.tgz -C /tmp/pack package
-sha256sum dsh-api-balance-0.1.0.tgz
+tar czf dsh-api-balance-0.1.1.tgz -C /tmp/pack package
+sha256sum dsh-api-balance-0.1.1.tgz
 
 # 3. 照 spec.example.json 生成 spec.json（填 tgz 绝对路径与 sha256），
 #    交给部署自带的插件安装器落盘 —— 商店条目 + 实体 + profile symlink + bundles + plugin-state，
